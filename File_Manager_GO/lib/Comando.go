@@ -8,9 +8,10 @@ import (
 
 // Struct que almacena la informacion necesaria en respuesta a la API
 type colector struct {
-	Salida  string
-	IsLogin bool
-	RepDot  string
+	Salida    string
+	IsLogin   int
+	LoginName string
+	RepDot    string
 }
 
 // Instancia de colector tipo struct que recolectara informacion necesaria para respuesta de la API
@@ -63,6 +64,8 @@ func ejecutar(command string) {
 	type_valor := ""
 	name_valor := ""
 	id_valor := ""
+	usuario_valor := ""
+	password_valor := ""
 
 	size_flag := 0
 	unit_flag := 0
@@ -71,6 +74,8 @@ func ejecutar(command string) {
 	type_flag := 0
 	name_flag := 0
 	id_flag := 0
+	usuario_flag := 0
+	password_flag := 0
 
 	for i := 1; i < len(parametros); i++ {
 
@@ -339,6 +344,95 @@ func ejecutar(command string) {
 				Recolector.Salida += "Error: Parametro no permitido en REP\n"
 				return
 			}
+		case "login":
+			if strings.Contains(parametro, "id=") {
+
+				if id_flag == 0 {
+					valor := strings.Replace(parametro, "id=", "", 1)
+
+					id_valor = strings.ToLower(valor)
+					id_flag = 1
+				} else {
+					Recolector.Salida += "Error: Parametro ID repetido\n"
+					return
+				}
+			} else if strings.Contains(parametro, "usuario=") {
+
+				if usuario_flag == 0 {
+					// Se omite la variable "parametro" que contiene el parametro requerido -usuario
+					// Se crea otra variable "paramUsuario" que contiene el parametro original, sin implementar toLower
+					// Esto para que el valor (usuario) del "-usuario" sea el original, con mayusculas y minusculas
+					paramUsuario := parametros[i]
+					// Extraccion de subcadena, que tomara lo que viene despues de -usuario=
+					valor := paramUsuario[8:]
+					//valor := strings.Replace(parametro, "usuario=", "", 1)
+
+					// No se aplica lower case
+					usuario_valor = valor
+					usuario_flag = 1
+				} else {
+					Recolector.Salida += "Error: Parametro USUARIO repetido\n"
+					return
+				}
+			} else if strings.Contains(parametro, "password=") {
+
+				if password_flag == 0 {
+					paramPassword := parametros[i]
+					// Extraccion de subcadena, que tomara lo que viene despues de -password=
+					valor := paramPassword[9:]
+					//valor := strings.Replace(parametro, "password=", "", 1)
+
+					// No se aplica lower case
+					password_valor = valor
+					password_flag = 1
+				} else {
+					Recolector.Salida += "Error: Parametro PASSWORD repetido\n"
+					return
+				}
+			} else {
+				Recolector.Salida += "Error: Parametro no permitido en LOGIN\n"
+				return
+			}
+		case "mkgrp":
+			if strings.Contains(parametro, "name=") {
+
+				if name_flag == 0 {
+					paramGroup := parametros[i]
+					// Extraccion de subcadena, que tomara lo que viene despues de -name=
+					valor := paramGroup[5:]
+					//valor := strings.Replace(parametro, "name=", "", 1)
+
+					// No se aplica lower case
+					name_valor = valor
+					name_flag = 1
+				} else {
+					Recolector.Salida += "Error: Parametro NAME repetido\n"
+					return
+				}
+			} else {
+				Recolector.Salida += "Error: Parametro no permitido en MKGRP\n"
+				return
+			}
+		case "rmgrp":
+			if strings.Contains(parametro, "name=") {
+
+				if name_flag == 0 {
+					paramGroup := parametros[i]
+					// Extraccion de subcadena, que tomara lo que viene despues de -name=
+					valor := paramGroup[5:]
+					//valor := strings.Replace(parametro, "name=", "", 1)
+
+					// No se aplica lower case
+					name_valor = valor
+					name_flag = 1
+				} else {
+					Recolector.Salida += "Error: Parametro NAME repetido\n"
+					return
+				}
+			} else {
+				Recolector.Salida += "Error: Parametro no permitido en RMGRP\n"
+				return
+			}
 		default:
 			Recolector.Salida += "Comando no encontrado\n"
 			return
@@ -348,6 +442,8 @@ func ejecutar(command string) {
 	// Se extraen las comillas a los valores a continuacion
 	path_valor = strings.Trim(path_valor, "\"")
 	name_valor = strings.Trim(name_valor, "\"")
+	usuario_valor = strings.Trim(usuario_valor, "\"")
+	password_valor = strings.Trim(password_valor, "\"")
 
 	switch comando {
 	case "mkdisk":
@@ -561,5 +657,64 @@ func ejecutar(command string) {
 		// El simbolo "##*##" se utilizara como limitador para separar los dot del mismo reporte cuando se recorra en el front
 		Recolector.RepDot += cmd.RepDot + "##*##"
 
+	case "login":
+		if id_flag == 0 {
+			Recolector.Salida += "Error: Parametro ID no establecido\n"
+			return
+		}
+
+		if !(strings.HasPrefix(id_valor, "64")) {
+			Recolector.Salida += "Error: El ID no cumple con la estructura requerida\n"
+			return
+		}
+
+		if usuario_flag == 0 {
+			Recolector.Salida += "Error: Parametro USUARIO no establecido\n"
+			return
+		}
+
+		if password_flag == 0 {
+			Recolector.Salida += "Error: Parametro PASSWORD no establecido\n"
+			return
+		}
+
+		cmd.EjecutarLOGIN(usuario_valor, password_valor, id_valor)
+		Recolector.Salida += cmd.Consola
+		Recolector.IsLogin = cmd.CurrentSession.Id_user
+		Recolector.LoginName = cmd.CurrentSession.User_name
+
+	case "logout":
+		cmd.EjecutarLOGOUT()
+		Recolector.Salida += cmd.Consola
+		Recolector.IsLogin = cmd.CurrentSession.Id_user
+		Recolector.LoginName = cmd.CurrentSession.User_name
+
+	case "mkgrp":
+		if name_flag == 0 {
+			Recolector.Salida += "Error: Parametro NAME no establecido\n"
+			return
+		}
+
+		if len(name_valor) > 10 {
+			Recolector.Salida += "Error: El nombre de grupo no puede exceder los 10 caracteres\n"
+			return
+		}
+
+		cmd.EjecutarMKGRP(name_valor)
+		Recolector.Salida += cmd.Consola
+
+	case "rmgrp":
+		if name_flag == 0 {
+			Recolector.Salida += "Error: Parametro NAME no establecido\n"
+			return
+		}
+
+		if len(name_valor) > 10 {
+			Recolector.Salida += "Error: El nombre de grupo no puede exceder los 10 caracteres\n"
+			return
+		}
+
+		cmd.EjecutarRMGRP(name_valor)
+		Recolector.Salida += cmd.Consola
 	}
 }
