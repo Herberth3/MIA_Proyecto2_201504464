@@ -13,11 +13,14 @@ export class InterpreteComponent implements OnInit {
   entrada = "";
   salida = "";
   repDot = "";
+  isLogin : any;
+  userName = "";
+  conectado = " Desconectado";
 
   constructor(public service: ServicioService) { }
 
   ngOnInit(): void {
-    
+    this.mostrarUsuario();
   }
 
   public async onFileSelected(event:any) {
@@ -31,6 +34,12 @@ export class InterpreteComponent implements OnInit {
         this.service.postEntrada(cmd).subscribe(async (res:any) => {
           this.salida = await res.Consola + "\n";
           this.repDot = await res.RepDot + "\n";
+          this.isLogin = await res.IsLogin;
+          this.userName = await res.LoginName;
+
+          if (this.isLogin == 0) {
+            this.conectado = " Desconectado";
+          }
 
           if (this.repDot != "") {
             this.drawDot(this.repDot);
@@ -52,6 +61,17 @@ export class InterpreteComponent implements OnInit {
         graphviz("#rep" + i).renderDot(arrayDots[i]);
       }
     }
+  }
+
+  mostrarUsuario(){
+    this.service.getUser().subscribe(async (res: any) => {
+      this.isLogin = await res.IsLogin;
+      this.userName = await res.LoginName
+
+      if (this.isLogin != 0) {
+        this.conectado = " Conectado";
+      }
+    });
   }
 
 }
