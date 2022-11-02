@@ -16,9 +16,10 @@ type cmdstruct struct {
 }
 
 type respuesta struct {
-	Consola string
-	IsLogin int
-	RepDot  string
+	Consola   string
+	IsLogin   int
+	LoginName string
+	RepDot    string
 }
 
 func main() {
@@ -37,9 +38,28 @@ func main() {
 		command.Analizar(Content.Cmd)
 
 		res := respuesta{
-			Consola: command.Recolector.Salida,
-			IsLogin: 0,
-			RepDot:  command.Recolector.RepDot}
+			Consola:   command.Recolector.Salida,
+			IsLogin:   command.Recolector.IsLogin,
+			LoginName: command.Recolector.LoginName,
+			RepDot:    command.Recolector.RepDot}
+
+		jsonResponse, jsonError := json.Marshal(res)
+
+		if jsonError != nil {
+			fmt.Println("Unable to encode JSON")
+		}
+
+		w.WriteHeader(http.StatusOK)
+		w.Write(jsonResponse)
+	})
+
+	mux.HandleFunc("/usuario", func(w http.ResponseWriter, r *http.Request) {
+
+		w.Header().Set("Content-Type", "application/json")
+
+		res := respuesta{
+			IsLogin:   command.Recolector.IsLogin,
+			LoginName: command.Recolector.LoginName}
 
 		jsonResponse, jsonError := json.Marshal(res)
 
@@ -55,10 +75,10 @@ func main() {
 	handler := cors.Default().Handler(mux)
 	log.Fatal(http.ListenAndServe(":5000", handler))
 
-	//if err != nil {
-	//	fmt.Println("Error: ", err)
-	//} else {
-	//	text := string(file)
-	//	command.Analizar(text)
-	//}
+	/*if err != nil {
+		fmt.Println("Error: ", err)
+	} else {
+		text := string(file)
+		command.Analizar(text)
+	}*/
 }

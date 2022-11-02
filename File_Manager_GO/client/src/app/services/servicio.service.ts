@@ -11,4 +11,8 @@ export class ServicioService {
   postEntrada(entrada: string){
     return this.httpClient.post("http://localhost:5000/analizar",{ Cmd: entrada});
   }
+
+  getUser(){
+    return this.httpClient.get("http://localhost:5000/usuario");
+  }
 }
