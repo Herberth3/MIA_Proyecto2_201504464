@@ -66,6 +66,7 @@ func ejecutar(command string) {
 	id_valor := ""
 	usuario_valor := ""
 	password_valor := ""
+	grupo_valor := ""
 
 	size_flag := 0
 	unit_flag := 0
@@ -76,6 +77,7 @@ func ejecutar(command string) {
 	id_flag := 0
 	usuario_flag := 0
 	password_flag := 0
+	grupo_flag := 0
 
 	for i := 1; i < len(parametros); i++ {
 
@@ -433,6 +435,72 @@ func ejecutar(command string) {
 				Recolector.Salida += "Error: Parametro no permitido en RMGRP\n"
 				return
 			}
+		case "mkusr":
+			if strings.Contains(parametro, "usuario=") {
+
+				if usuario_flag == 0 {
+					paramUsuario := parametros[i]
+					// Extraccion de subcadena, que tomara lo que viene despues de -usuario=
+					valor := paramUsuario[8:]
+
+					// No se aplica lower case
+					usuario_valor = valor
+					usuario_flag = 1
+				} else {
+					Recolector.Salida += "Error: Parametro USUARIO repetido\n"
+					return
+				}
+			} else if strings.Contains(parametro, "pwd=") {
+
+				if password_flag == 0 {
+					paramPassword := parametros[i]
+					// Extraccion de subcadena, que tomara lo que viene despues de -pwd=
+					valor := paramPassword[4:]
+
+					// No se aplica lower case
+					password_valor = valor
+					password_flag = 1
+				} else {
+					Recolector.Salida += "Error: Parametro PWD repetido\n"
+					return
+				}
+			} else if strings.Contains(parametro, "grp=") {
+
+				if grupo_flag == 0 {
+					paramGroup := parametros[i]
+					// Extraccion de subcadena, que tomara lo que viene despues de -grp=
+					valor := paramGroup[4:]
+
+					// No se aplica lower case
+					grupo_valor = valor
+					grupo_flag = 1
+				} else {
+					Recolector.Salida += "Error: Parametro GRP repetido\n"
+					return
+				}
+			} else {
+				Recolector.Salida += "Error: Parametro no permitido en MKUSR\n"
+				return
+			}
+		case "rmusr":
+			if strings.Contains(parametro, "usuario=") {
+
+				if usuario_flag == 0 {
+					paramUsuario := parametros[i]
+					// Extraccion de subcadena, que tomara lo que viene despues de -usuario=
+					valor := paramUsuario[8:]
+
+					// No se aplica lower case
+					usuario_valor = valor
+					usuario_flag = 1
+				} else {
+					Recolector.Salida += "Error: Parametro USUARIO repetido\n"
+					return
+				}
+			} else {
+				Recolector.Salida += "Error: Parametro no permitido en RMUSR\n"
+				return
+			}
 		default:
 			Recolector.Salida += "Comando no encontrado\n"
 			return
@@ -444,6 +512,7 @@ func ejecutar(command string) {
 	name_valor = strings.Trim(name_valor, "\"")
 	usuario_valor = strings.Trim(usuario_valor, "\"")
 	password_valor = strings.Trim(password_valor, "\"")
+	grupo_valor = strings.Trim(grupo_valor, "\"")
 
 	switch comando {
 	case "mkdisk":
@@ -715,6 +784,55 @@ func ejecutar(command string) {
 		}
 
 		cmd.EjecutarRMGRP(name_valor)
+		Recolector.Salida += cmd.Consola
+
+	case "mkusr":
+		if usuario_flag == 0 {
+			Recolector.Salida += "Error: Parametro USUARIO no establecido\n"
+			return
+		}
+
+		if password_flag == 0 {
+			Recolector.Salida += "Error: Parametro PWD no establecido\n"
+			return
+		}
+
+		if grupo_flag == 0 {
+			Recolector.Salida += "Error: Parametro GRP no establecido\n"
+		}
+
+		// Validacion: Longitud de la cadena no debe ser mayor a 10 caracteres
+		if len(usuario_valor) > 10 {
+			Recolector.Salida += "Error: El nombre de usuario no puede exceder los 10 caracteres\n"
+			return
+		}
+
+		if len(password_valor) > 10 {
+			Recolector.Salida += "Error: La contraseña no puede exceder los 10 caracteres\n"
+			return
+		}
+
+		if len(grupo_valor) > 10 {
+			Recolector.Salida += "Error: El nombre del grupo no puede exceder los 10 caracteres\n"
+			return
+		}
+
+		cmd.EjecutarMKUSR(usuario_valor, password_valor, grupo_valor)
+		Recolector.Salida += cmd.Consola
+
+	case "rmusr":
+		if usuario_flag == 0 {
+			Recolector.Salida += "Error: Parametro USUARIO no establecido\n"
+			return
+		}
+
+		// Validacion: Longitud de la cadena no debe ser mayor a 10 caracteres
+		if len(usuario_valor) > 10 {
+			Recolector.Salida += "Error: El nombre de usuario no puede exceder los 10 caracteres\n"
+			return
+		}
+
+		cmd.EjecutarRMUSR(usuario_valor)
 		Recolector.Salida += cmd.Consola
 	}
 }
