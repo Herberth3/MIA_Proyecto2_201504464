@@ -9,10 +9,10 @@ export class ServicioService {
   constructor(private httpClient: HttpClient) { }
 
   postEntrada(entrada: string){
-    return this.httpClient.post("http://localhost:5000/analizar",{ Cmd: entrada});
+    return this.httpClient.post("http://54.205.237.197:5000/analizar",{ Cmd: entrada});
   }
 
   getUser(){
-    return this.httpClient.get("http://localhost:5000/usuario");
+    return this.httpClient.get("http://54.205.237.197:5000/usuario");
   }
 }
