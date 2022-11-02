@@ -26,7 +26,7 @@ func Analizar(inputText string) {
 	// Atributo Salida de Recolector, almacenara el string que informa si hubo un error o el comando se ejecuto con exito
 	Recolector.Salida = ""
 	// En cada peticion crear un nuevo arreglo de 26 discos para montar
-	cmd.Discos = [26]cmd.DISCOMONTADO{}
+	//cmd.Discos = [26]cmd.DISCOMONTADO{}
 	// Se limpian los strings que almacenan el codigo dot de los reportes en cada ejecucion
 	Recolector.RepDot = ""
 
