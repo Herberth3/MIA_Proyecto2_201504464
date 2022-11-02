@@ -1,1 +1,23 @@
-<p>login works!</p>
+<div class="container-fluid" style="margin-top: 3%; width: 50%; background-color: rgb(123, 129, 218);">
+    <form>
+        <div class="mb-3">
+            <label for="idParticion" class="form-label">ID Particion</label>
+            <input type="text" class="form-control" id="idParticion" [(ngModel)]="idparticion" name="idparticion"
+                required>
+            <div id="emailHelp" style="color: rgb(207, 147, 17);" class="form-text">Identificador de la particion
+                montada.</div>
+        </div>
+        <div class="mb-3">
+            <label for="user" class="form-label">Nombre usuario</label>
+            <input type="text" class="form-control" id="user" [(ngModel)]="usuario" name="usuario" required>
+            <div id="emailHelp" style="color: rgb(207, 147, 17);" class="form-text">Usuario que inicia la sesion.</div>
+        </div>
+        <div class="mb-3">
+            <label for="exampleInputPassword1" class="form-label">Password</label>
+            <input type="password" class="form-control" id="exampleInputPassword1" [(ngModel)]="contrasena"
+                name="contrasena" required>
+        </div>
+        <button type="submit" class="btn btn-primary" (click)="ejecutar()">Iniciar</button>
+    </form>
+
+</div>
